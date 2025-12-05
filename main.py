@@ -1,24 +1,13 @@
 from __future__ import annotations
+import asyncio
+import websockets
 import socket
-import time
-
-HOST = "127.0.0.1"
-PORT = 5050
-
-def receive_text(conn:socket):
-    if not conn:
-        return
-    buffer = ""
-    while "\n" not in buffer:
-        data = conn.recv(1024).decode("utf-8")
-        if not data:
-            return buffer
-        buffer += data
-    return buffer.strip("\n")
+from functools  import partial
+from listen import receive_text, HOST, PORT
 
 
-def listenSocket(address: tuple):
-    _, port = address
+async def proxy_socket(websocket, path, address):
+    _, port = address # initial address
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             s.bind(address)
@@ -26,20 +15,31 @@ def listenSocket(address: tuple):
             print(f"Listening on port {port}...")
 
             while True:
-                time.sleep(1.0)
+                # time.sleep(1.0)
+                asyncio.sleep(1.0)
                 conn, addr = s.accept()
                 with conn:
                     print(f"Connected by {addr}")
                     while True:
-                        # result = unpickle_data(conn)
                         result = receive_text(conn=conn)
                         if result is None:
                             conn.close()
                             break
-                        print(result)
+                        await websocket.send(result)
         except KeyboardInterrupt as ke:
             print(f"{repr(ke)}")
             return
 
+handler = partial(proxy_socket,address=(HOST,PORT))
+
+async def wrapped_handler(websocket,path):
+    await handler(websocket,path)
+
+async def main():
+    async with websockets.serve(wrapped_handler, "0.0.0.0", 8000):
+        print("WebSocket server running on ws://0.0.0.0:8000")
+        await asyncio.Future()  # Run forever
+
+
 if __name__=="__main__":
-    listenSocket((HOST,PORT))
+    asyncio.run(main())
