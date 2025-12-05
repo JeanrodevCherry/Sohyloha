@@ -1,45 +1,45 @@
-from __future__ import annotations
-import asyncio
-import websockets
 import socket
-from functools  import partial
+import asyncio
+from fastapi import FastAPI, WebSocket, Request, Response
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+import uvicorn
+
+
 from listen import receive_text, HOST, PORT
 
+app = FastAPI()
+# app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+ADDRESS = (HOST,PORT)
 
-async def proxy_socket(websocket, path, address):
-    _, port = address # initial address
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket,address=ADDRESS):
+    await websocket.accept()
+    _, port = address
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.bind(address)
-            s.listen()
-            print(f"Listening on port {port}...")
+        s.bind(address)
+        s.listen()
+        print(f"Listening on port {port}...")
 
-            while True:
-                # time.sleep(1.0)
-                asyncio.sleep(1.0)
-                conn, addr = s.accept()
-                with conn:
-                    print(f"Connected by {addr}")
-                    while True:
-                        result = receive_text(conn=conn)
-                        if result is None:
-                            conn.close()
-                            break
-                        await websocket.send(result)
-        except KeyboardInterrupt as ke:
-            print(f"{repr(ke)}")
-            return
+        while True:
+            await asyncio.sleep(1.0)
+            conn, addr = s.accept()
+            with conn:
+                print(f"Connected by {addr}")
+                while True:
+                    # result = unpickle_data(conn)
+                    result = receive_text(conn=conn) 
+                    if result is None:
+                        conn.close()
+                        break
+                    await websocket.send_text(result)
 
-handler = partial(proxy_socket,address=(HOST,PORT))
+@app.get("/")
+async def get_homepage(request: Request):
+    return templates.TemplateResponse(request=request,context={},name="index.html")
 
-async def wrapped_handler(websocket,path):
-    await handler(websocket,path)
-
-async def main():
-    async with websockets.serve(wrapped_handler, "0.0.0.0", 8000):
-        print("WebSocket server running on ws://0.0.0.0:8000")
-        await asyncio.Future()  # Run forever
-
-
-if __name__=="__main__":
-    asyncio.run(main())
+if __name__ == "__main__":
+    uvicorn.run(app,"localhost",8000)
