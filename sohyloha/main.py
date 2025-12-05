@@ -2,7 +2,7 @@ from __future__ import annotations
 import socket
 import time
 import asyncio
-from fastapi import FastAPI, WebSocket, Request, Response, websockets
+from fastapi import FastAPI, WebSocket, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -99,6 +99,8 @@ def listenSocket(address: tuple):
 
 
 app = FastAPI()
+# serve templates from package directory
+# templates = Jinja2Templates(directory="templates")
 ADDRESS = (HOST,PORT)
 
 
