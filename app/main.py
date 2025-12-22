@@ -7,6 +7,7 @@ from datetime import datetime
 from threading import Lock
 import os
 
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -17,6 +18,7 @@ LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 log_lock = Lock()  # Thread-safe file writes
 MAX_LOG_SIZE = 100 * 1024 * 1024  # 100MB per file
+
 
 
 def get_log_filepath(device_name: str) -> Path:
@@ -54,35 +56,36 @@ def rotate_log_if_needed(log_file: Path) -> None:
 
 #     return {"status": "ok"}
 
-# @app.get("/", response_class=HTMLResponse)
-# async def dashboard(request: Request):
-#     """Render dashboard with list of log files."""
-#     log_files = [f.name for f in LOG_DIR.glob("*.log")]
-#     return templates.TemplateResponse(
-#         "index.html",
-#         {"request": request, "log_files": log_files}
-#     )
+@app.get("/", response_class=HTMLResponse)
+async def dashboard(request: Request):
+    """Render dashboard with list of log files."""
+    log_files = [f for f in LOG_DIR.glob("**/*.log")]
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "log_files": log_files}
+    )
 
-# @app.get("/logs/{filename}", response_class=HTMLResponse)
-# async def view_log(request: Request, filename: str):
-#     """Display contents of a log file."""
-#     log_file = LOG_DIR / filename
-#     if not log_file.exists():
-#         return {"error": "File not found"}
+@app.get("/logs/{device_name}/{filename}", response_class=HTMLResponse)
+async def view_log(request: Request,device_name:str, filename: str):
+    """Display contents of a log file."""
+    # log_file = LOG_DIR / filename
+    log_file = LOG_DIR / device_name / filename
+    print(log_file)
+    if not log_file.exists():
+        return {"error": "File not found"}
 
-#     with open(log_file, "r") as f:
-#         log_content = f.read()
+    with open(log_file, "r") as f:
+        log_content = f.read()
 
-#     return templates.TemplateResponse(
-#         "index.html",
-#         {
-#             "request": request,
-#             "log_files": [f.name for f in LOG_DIR.glob("*.log")],
-#             "current_log": filename,
-#             "log_content": log_content,
-#         }
-#     )
-
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "log_files": [f for f in LOG_DIR.glob("**/*.log")],
+            "current_log": filename,
+            "log_content": log_content,
+        }
+    )
 
 @app.post("/debug")
 async def debug(request: Request):

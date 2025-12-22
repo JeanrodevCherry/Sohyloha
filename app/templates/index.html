@@ -3,7 +3,7 @@
 
 <head>
     <title>Logging Dashboard</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/index.css">
 </head>
 
 <body>
@@ -13,7 +13,7 @@
         <ul>
             {% for file in log_files %}
             <li>
-                <a href="/logs/{{ file }}">{{ file }}</a>
+                <a href="/{{ file }}">{{ file }}</a>
             </li>
             {% endfor %}
         </ul>
