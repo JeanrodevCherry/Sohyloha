@@ -31,11 +31,11 @@ def rotate_log_if_needed(log_file: Path) -> None:
     if log_file.exists() and log_file.stat().st_size > MAX_LOG_SIZE:
         # Rename to .1, .2, etc. (like logrotate)
         for i in range(99, 0, -1):
-            old = log_file.with_suffix(f".{i}")
-            new = log_file.with_suffix(f".{i+1}")
+            old = log_file.with_suffix(f".{i.zfill(3)}")
+            new = log_file.with_suffix(f".{(i+1).zfill(3)}")
             if old.exists():
                 old.rename(new)
-        log_file.rename(log_file.with_suffix(".1"))
+        log_file.rename(log_file.with_suffix(".001"))
 
 
 # @app.post("/logs")
