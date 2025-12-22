@@ -44,8 +44,9 @@ async def get_homepage(request: Request):
 
 @app.post("/")
 async def post_line(request: Request):
-    return JSONResponse(context={"request": request,"status": status.HTTP_200_OK})
-
+    # return JSONResponse(context={"request": request,"status": status.HTTP_200_OK})
+    return JSONResponse(request,context={})
 
 if __name__ == "__main__":
-    uvicorn.run(app,"localhost",8000)
+    # uvicorn.run(app,"localhost",8000)
+    uvicorn.run(app="main:app",host="localhost",port=5080,reload=True)
