@@ -3,7 +3,7 @@ import socket
 import time
 
 HOST = "127.0.0.1"
-PORT = 5050
+PORT = 5080
 
 def receive_text(conn:socket):
     if not conn:
