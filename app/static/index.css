@@ -1,0 +1,39 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.log-list {
+    float: left;
+    width: 20%;
+    border-right: 1px solid #ccc;
+    padding-right: 10px;
+}
+
+.log-viewer {
+    float: left;
+    width: 75%;
+    margin-left: 20px;
+}
+
+.log-entry {
+    border-bottom: 1px solid #eee;
+    padding: 5px;
+}
+
+.error {
+    color: red;
+}
+
+.info {
+    color: blue;
+}
+
+.warning {
+    color: orange;
+}
+
+.critical {
+    color: red;
+    font-weight: bold;
+}

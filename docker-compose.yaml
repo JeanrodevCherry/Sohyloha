@@ -1,0 +1,11 @@
+services:
+  logging-dashboard:
+    build: .
+    ports:
+      - "5080:5080"
+    volumes:
+      - ./app:/app
+      - ./app/logs:/app/logs  # Persist logs outside container
+    command: > 
+      sh -c "ls -l && uvicorn 'main:app' --host 0.0.0.0 --port 5080 --reload"
+    restart: unless-stopped

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Logging Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <h1>Logging Dashboard</h1>
+    <div class="log-list">
+        <h2>Log Files</h2>
+        <ul>
+            {% for file in log_files %}
+            <li>
+                <a href="/logs/{{ file }}">{{ file }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="log-viewer">
+        {% if current_log %}
+        <h2>Viewing: {{ current_log }}</h2>
+        <pre>
+                {% for line in log_content.split('\n') %}
+                    {% if 'ERROR' in line %}
+                        <div class="error">{{ line }}</div>
+                    {% elif 'WARNING' in line %}
+                        <div class="warning">{{ line }}</div>
+                    {% elif 'INFO' in line %}
+                        <div class="info">{{ line }}</div>
+                    {% else %}
+                        <div class="log-entry">{{ line }}</div>
+                    {% endif %}
+                {% endfor %}
+            </pre>
+        {% else %}
+        <p>Select a log file from the left.</p>
+        {% endif %}
+    </div>
+</body>
+
+</html>
