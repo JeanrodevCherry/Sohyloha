@@ -10,6 +10,7 @@ body {
     padding-right: 10px;
 }
 
+/* 
 .log-viewer {
     float: left;
     width: 75%;
@@ -18,8 +19,15 @@ body {
 
 .log-entry {
     border-bottom: 1px solid #eee;
-    /* padding: 5px; */
+} */
+.log-viewer {
+    float: left;
+    width: 75%;
+    margin-left: 20px;
+    font-family: monospace;
+    /* Ensure monospace font */
 }
+
 
 .error {
     color: red;
@@ -39,6 +47,16 @@ body {
     font-weight: bold;
 }
 
-.div {
-    margin: 0 0 0 0;
+
+.log-viewer span {
+    display: block;
+    /* Force block-level behavior */
+    margin: 0;
+    /* Remove all margins */
+    padding: 0;
+    /* Remove all padding */
+    line-height: inherit;
+    /* Inherit from <pre> */
+    border-bottom: 1px solid #eee;
+    /* Optional: subtle separator */
 }

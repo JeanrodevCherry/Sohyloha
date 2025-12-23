@@ -76,7 +76,7 @@ async def view_log(request: Request,device_name:str, filename: str):
 
     with open(log_file, "r") as f:
         log_content = f.read()
-    log_lines = log_content.split('\n')[::-1]
+    log_lines = log_content.split('\n')[::-1][:99]
     reversed_log = '\n'.join(log_lines)
     return templates.TemplateResponse(
         "index.html",
