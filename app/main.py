@@ -17,7 +17,7 @@ templates = Jinja2Templates(directory="templates")
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 log_lock = Lock()  # Thread-safe file writes
-MAX_LOG_SIZE = 100 * 1024 * 1024  # 100MB per file
+MAX_LOG_SIZE = 10 * 1024 * 1024  # 10MB per file
 
 
 
@@ -33,8 +33,8 @@ def rotate_log_if_needed(log_file: Path) -> None:
     if log_file.exists() and log_file.stat().st_size > MAX_LOG_SIZE:
         # Rename to .1, .2, etc. (like logrotate)
         for i in range(99, 0, -1):
-            old = log_file.with_suffix(f".{i.zfill(3)}")
-            new = log_file.with_suffix(f".{(i+1).zfill(3)}")
+            old = log_file.with_suffix(f".{str(i).zfill(3)}")
+            new = log_file.with_suffix(f".{str(i+1).zfill(3)}")
             if old.exists():
                 old.rename(new)
         log_file.rename(log_file.with_suffix(".001"))
@@ -76,14 +76,15 @@ async def view_log(request: Request,device_name:str, filename: str):
 
     with open(log_file, "r") as f:
         log_content = f.read()
-
+    log_lines = log_content.split('\n')[::-1]
+    reversed_log = '\n'.join(log_lines)
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "log_files": [f for f in LOG_DIR.glob("**/*.log")],
             "current_log": filename,
-            "log_content": log_content,
+            "log_content": reversed_log,
         }
     )
 
